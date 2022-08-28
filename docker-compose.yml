@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  quartus:
+    image: quartus/web:v13.1.4
+    volumes:
+      - $HOME:/home/$USER
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      QT_X11_NO_MITSHM: 1
+      DISPLAY: $DISPLAY
