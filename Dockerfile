@@ -23,6 +23,7 @@ ADD quartus-install /tmp/quartus-install
 
 WORKDIR /tmp/quartus-install
 
+RUN chmod +x *.run
 RUN ./QuartusSetupWeb-13.1.0.162.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
 RUN ./QuartusSetup-13.1.4.182.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
 
