@@ -24,11 +24,21 @@ Download files:
 Copy those files to directory `quartus-install`
 
 Ex.:
-```
-/quartus-install
-  |_ cyclone_web-13.1.0.162.qdz
-  |_ QuartusSetup-13.1.4.182.run
-  |_ QuartusSetupWeb-13.1.0.162.run
+```$ tree quartus-install/
+quartus-install/
+├── components
+│   ├── arria_web-13.1.0.162.qdz
+│   ├── cyclonev-13.1.0.162.qdz
+│   ├── cyclone_web-13.1.0.162.qdz
+│   ├── max_web-13.1.0.162.qdz
+│   ├── ModelSimSetup-13.1.0.162.run
+│   ├── QuartusHelpSetup-13.1.0.162.run
+|   |── QuartusSetup-13.1.4.182.run
+│   └── QuartusSetupWeb-13.1.0.162.run
+├── Quartus-web-13.1.0.162-linux.tar
+└── setup.sh
+
+1 directory, 9 files
 ```
 
 ### Building
@@ -39,12 +49,7 @@ Ex.:
 
 ### Running
 
-Run once on every new session:
-```
-> xhost +
-```
-
 Start Quartus:
 ```
-> docker compose run quartus
+> docker compose up
 ```
