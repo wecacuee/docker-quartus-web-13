@@ -31,6 +31,8 @@ RUN apt purge -y make gcc
 RUN apt autoremove -y
 RUN rm -rf /tmp/*
 
+ADD 51-usbblaster.rules /etc/udev/rules.d/51-usbblaster.rules
+
 WORKDIR ${HOME}
 
 CMD ["/home/altera/13.1/quartus/bin/quartus"]
