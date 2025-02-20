@@ -25,6 +25,7 @@ WORKDIR /tmp/
 
 RUN chmod +x ./quartus-install/components/*.run
 RUN ./quartus-install/components/QuartusSetupWeb-13.1.0.162.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
+RUN ./quartus-install/components/QuartusSetup-13.1.4.182.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
 
 RUN apt purge -y make gcc
 RUN apt autoremove -y
