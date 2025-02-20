@@ -2,9 +2,13 @@ version: "3.9"
 services:
   quartus:
     image: quartus/web:v13.1.4
+    privileged: true
+    network_mode: "host"
     volumes:
       - $HOME:/home/$USER
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - /home/$USER/.Xauthority:$XAUTHORITY
     environment:
       QT_X11_NO_MITSHM: 1
       DISPLAY: $DISPLAY
+      XAUTHORITY: /home/$USER/.Xauthority

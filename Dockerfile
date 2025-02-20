@@ -1,5 +1,5 @@
 FROM i386/debian:bullseye
-MAINTAINER Roberto Focosi, rfocosi@gmail.com
+LABEL Roberto Focosi, rfocosi@gmail.com
 
 ENV HOME=/home
 ENV PATH=$PATH:/home/altera/13.1/quartus/bin
@@ -21,11 +21,10 @@ RUN ldconfig
 
 ADD quartus-install /tmp/quartus-install
 
-WORKDIR /tmp/quartus-install
+WORKDIR /tmp/
 
-RUN chmod +x *.run
-RUN ./QuartusSetupWeb-13.1.0.162.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
-RUN ./QuartusSetup-13.1.4.182.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
+RUN chmod +x ./quartus-install/components/*.run
+RUN ./quartus-install/components/QuartusSetupWeb-13.1.0.162.run --unattendedmodeui none --mode unattended --installdir /home/altera/13.1
 
 RUN apt purge -y make gcc
 RUN apt autoremove -y
