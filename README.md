@@ -18,10 +18,10 @@ https://www.intel.com/content/www/us/en/software-kit/666220/intel-quartus-ii-web
 Download files:
 - QuartusSetupWeb-13.1.0.162.run (Main Install)
 - QuartusSetup-13.1.4.182.run (Latest Update)
-- Your device QDZ
+- Your device QDZ (For Cyclone III, use cyclone_web-13.1.0.162.qdz)
 - Additional Software (Optional)
 
-Copy those files to directory `quartus-install`
+Copy those files to directory `quartus-install/components`
 
 Ex.:
 ```$ tree quartus-install/
@@ -44,12 +44,21 @@ quartus-install/
 ### Building
 
 ```
-> docker build -t quartus/web:v13.1.4 .
+$ docker build -t quartus/web:v13.1.4 .
+```
+
+Copy to `51-usbblaster.rules` to `/etc/udev/rules.d/51-usbblaster.rules`
+
+```
+$ sudo cp 51-usbblaster.rules /etc/udev/rules.d/51-usbblaster.rules
+$ sudo udevadm control --reload-rules 
+$ udevadm trigger
 ```
 
 ### Running
 
 Start Quartus:
+
 ```
-> docker compose up
+$ docker compose -f docker-compose.yml up
 ```
