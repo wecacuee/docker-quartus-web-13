@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS quartus
+FROM ubuntu:20.04 AS quartusdeps
 LABEL AUTHOR="Roberto Focosi, rfocosi@gmail.com"
 
 ARG ALTERA_INSTALLPATH=/home/altera/13.1
@@ -12,29 +12,10 @@ RUN apt update && apt upgrade -y && \
      libsm6  \
      libxext6  \
      libxrender-dev \
-     zlib1g-dev
+     zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY libpng-1.2.59.tar /tmp/
-
-WORKDIR /tmp/
-
-RUN tar -xvf libpng-1.2.59.tar \
-    && cd /tmp/libpng-1.2.59/ \
-    && ./configure && make && make install \
-    && rm -rf /tmp/libpng-1.2.59/  /tmp/libpng-1.2.59.tar
-    && ldconfig
-
-ADD quartus-install /tmp/quartus-install
-
-WORKDIR /tmp/
-
-RUN chmod +x ./quartus-install/components/*.run
-RUN env QUARTUS_64BIT=1 ./quartus-install/components/QuartusSetupWeb-13.1.0.162.run --unattendedmodeui none --mode unattended --installdir $ALTERA_INSTALLPATH  \
-    && env QUARTUS_64BIT=1 ./quartus-install/components/QuartusSetup-13.1.4.182.run --unattendedmodeui none --mode unattended --installdir $ALTERA_INSTALLPATH
-    \
-RUN rm -rf /tmp/*
-
-FROM quartus AS modelsim
+FROM quartusdeps AS modelsimdeps
 
 # https://www.intel.com/content/www/us/en/docs/programmable/683472/14-1/introduction.html
 # https://cdrdv2-public.intel.com/704826/quartus_install-14.1-683472-704826.pdf
@@ -73,9 +54,50 @@ RUN apt-get update && \
         libzmq5:i386\
         unixodbc:i386\
         zlib1g:i386\
-    && rm -rf /var/lib/apt/lists/* \
-    && apt purge -y make gcc \
-    && apt autoremove -y
+    && rm -rf /var/lib/apt/lists/*
+
+COPY libpng-1.2.59.tar /tmp/
+
+WORKDIR /tmp/
+
+RUN tar -xvf libpng-1.2.59.tar \
+    && cd /tmp/libpng-1.2.59/ \
+    && ./configure && make && make install \
+    && rm -rf /tmp/libpng-1.2.59/  \
+    && ldconfig
+
+# https://gist.github.com/robodhruv/e2c0945cc78006b00d4206846bdb7657
+RUN apt-get update \
+    && apt-get install -y wget build-essential libxrender1:i386 \
+    && rm -rf /var/lib/apt/lists/*
+RUN wget https://cfhcable.dl.sourceforge.net/project/freetype/freetype2/2.12.1/freetype-2.12.1.tar.gz -O /tmp/freetype-2.12.1.tar.gz \
+    && cd /tmp/ \
+    && tar xf /tmp/freetype-2.12.1.tar.gz \
+    && cd /tmp/freetype-2.12.1 \
+    && ./configure --build=i386-pc-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" --with-zlib=no --with-png=no --with-harfbuzz=no \
+    && make install \
+    && ldconfig
+
+FROM modelsimdeps AS withquartus
+ADD quartus-install /tmp/quartus-install
+
+WORKDIR /tmp/
+
+RUN chmod +x ./quartus-install/components/*.run
+RUN env QUARTUS_64BIT=1 ./quartus-install/components/QuartusSetupWeb-13.1.0.162.run --unattendedmodeui none --mode unattended --installdir $ALTERA_INSTALLPATH  \
+    && env QUARTUS_64BIT=1 ./quartus-install/components/QuartusSetup-13.1.4.182.run --unattendedmodeui none --mode unattended --installdir $ALTERA_INSTALLPATH
+    \
+RUN apt purge -y make gcc \
+    && apt autoremove -y \
+    && rm -rf /tmp/*
+
+
+ENV MODELSIM_DIR=$ALTERA_INSTALLPATH/modelsim_ase
+RUN sed -i -e 's/linux_rh60/linux/' $MODELSIM_DIR/bin/vsim
+RUN sed -i -e 's/MTI_VCO_MODE:-""/MTI_VCO_MODE:-"32"/' $MODELSIM_DIR/bin/vsim
+RUN ln -s $MODELSIM_DIR/linux $MODELSIM_DIR/bin/linux
+RUN mkdir -p $MODELSIM_DIR/bin/lib32 && cp /usr/local/lib/libfreetype* $MODELSIM_DIR/bin/lib32
+ENV LD_LIBRARY_PATH=$MODELSIM_DIR/bin/lib32
 
 WORKDIR ${HOME}
 
